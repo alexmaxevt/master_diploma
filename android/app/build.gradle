@@ -1,5 +1,4 @@
 def localProperties = new Properties()
-//def localProperties = Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
     localPropertiesFile.withReader('UTF-8') { reader ->
@@ -68,6 +67,7 @@ flutter {
 }
 
 dependencies {
-    implementation 'com.google.firebase:firebase-core:21.1.1'
+    implementation "com.google.firebase:firebase-core:21.1.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation platform("com.google.firebase:firebase-bom:30.5.0")
 }

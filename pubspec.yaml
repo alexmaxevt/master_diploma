@@ -33,6 +33,16 @@ dependencies:
   firebase_core: ^1.23.0
   flutter:
     sdk: flutter
+  # Добавление плагина google для машинного обучения
+  google_ml_kit: ^0.12.0
+  # Добавление пользовательских разрешений
+  permission_handler: ^10.0.1
+  # Добавление модуля image_picker
+  image_picker: ^0.8.5+3
+  # Добавление плагина tflite
+  tflite_flutter: ^0.9.0
+  # Добавление плагина meta
+  meta: ^1.8.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -101,6 +111,6 @@ flutter:
 
 # Установка иконки приложения
 flutter_icons:
-  android: "launcher_icon"
+  android: true
   ios: true
   image_path: "assets/icon/phone.png"
