@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,6 +30,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.brown,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      routes: <String, WidgetBuilder> {
+        '/setting': (BuildContext context) => SettingsPage(),
+      },
     );
   }
 }
@@ -51,9 +55,32 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  void _getImageOrPhoto() {
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
 
+  @override
+  State<SettingsPage> createState() => _SettingPageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  _getImagePhoto() async {
+    File file;
+    var picker = ImagePicker();
+    XFile? photoPicked = await picker.pickImage(source: ImageSource.camera);
+    if (photoPicked == null) return;
+    setState(() {
+      file = File(photoPicked.path);
+    });
+  }
+
+  _getImageSrc() async {
+    File file;
+    var picker = ImagePicker();
+    XFile? photoPicked = await picker.pickImage(source: ImageSource.gallery);
+    if (photoPicked == null) return;
+    setState(() {
+      file = File(photoPicked.path);
+    });
   }
 
   _aboutWindow() {
@@ -157,11 +184,44 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _getImageOrPhoto,
-        tooltip: 'Increment',
-        child: const Icon(Icons.camera),
+      floatingActionButton: SpeedDial(
+        shape: CircleBorder(),
+        icon: Icons.menu,
+        children: [
+          SpeedDialChild(
+            child: Icon(Icons.camera),
+            label: 'Камера',
+            backgroundColor: Colors.redAccent,
+            foregroundColor: Colors.white,
+            onTap: () => _getImagePhoto()
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.folder),
+            label: 'Открыть изображение',
+            backgroundColor: Colors.indigo,
+            foregroundColor: Colors.white,
+            onTap: () => _getImageSrc()
+          )
+        ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+class _SettingPageState extends State<SettingsPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Настройки'),
+        leading: IconButton(
+          onPressed: () {
+
+          },
+          icon: Icon(Icons.arrow_back_outlined),
+        ),
+      ),
+    );
+  }
+
 }
