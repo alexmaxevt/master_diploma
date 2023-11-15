@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:camera/camera.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
 
 void main() {
   runApp(const MyApp());
@@ -66,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
   _getImagePhoto() async {
     File file;
     var picker = ImagePicker();
-    XFile? photoPicked = await picker.pickImage(source: ImageSource.camera);
+    XFile? photoPicked = await picker.pickVideo(source: ImageSource.camera);
     if (photoPicked == null) return;
     setState(() {
       file = File(photoPicked.path);
@@ -85,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _aboutWindow() {
     return showDialog<void>(
-        context: context,
+        context: this.context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Alert Dialog'),
@@ -126,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
             icon: Icon(Icons.exit_to_app),
             onPressed: () => {
-              SystemNavigator.pop()
+              exit(0)
             },
           )
         ],
@@ -180,6 +183,13 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: () {
                 _aboutWindow();
               },
+            ),
+            ListTile(
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Выход'),
+              onTap: () {
+                SystemNavigator.pop();
+              },
             )
           ],
         ),
@@ -223,5 +233,4 @@ class _SettingPageState extends State<SettingsPage> {
       ),
     );
   }
-
 }
