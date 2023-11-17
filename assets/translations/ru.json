@@ -1,4 +1,9 @@
 {
   "title_in_toolbar": "OCR",
-  "setting_title": "Настройки"
+  "setting_title": "Настройки",
+  "setting_choose_language": "Выберете язык",
+  "setting_russian_language": "Русский",
+  "setting_english_language": "Английский",
+  "setting_save_button": "Сохранить",
+  "setting_cancel_button": "Отменить"
 }

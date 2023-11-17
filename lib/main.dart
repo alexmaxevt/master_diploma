@@ -27,8 +27,6 @@ void main() async{
   );
 }
 
-enum Language { russian, english }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -206,11 +204,15 @@ class _MyHomePageState extends State<MyHomePage> {
 class _SettingPageState extends State<SettingsPage> {
   int? selectedOption;
 
+  _cancel(context) {
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Настройки'),
+        title: Text(LocaleKeys.setting_title).tr(),
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
@@ -219,8 +221,10 @@ class _SettingPageState extends State<SettingsPage> {
         ),
       ),
       body: Container(
-        margin: EdgeInsets.all(10),
+        margin: EdgeInsets.all(30),
+        padding: EdgeInsets.all(40),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget> [
             Card(
               child: Column(
@@ -228,27 +232,56 @@ class _SettingPageState extends State<SettingsPage> {
                 children: <Widget>[
                   ListTile(
                     leading: Icon(Icons.add_chart),
-                    title: Text('Выберете язык'),
+                    title: Text(LocaleKeys.setting_choose_language).tr(),
                   ),
-                  RadioListTile<int> (
-                    title: Text('Русский'),
-                    value: 1,
-                    groupValue: selectedOption,
-                    onChanged: (int? value) {
-                      selectedOption = value;
-                    },
+                  ListTile(
+                    title: Text(LocaleKeys.setting_russian_language).tr(),
+                    leading: Radio<int> (
+                      value: 1,
+                      groupValue: selectedOption,
+                      onChanged: (int? value) {
+                        setState(() {
+                          selectedOption = value;
+                        });
+                      },
+                      activeColor: Colors.deepOrangeAccent,
+                    ),
                   ),
-                  RadioListTile<int> (
-                    title: Text('Английский'),
-                    value: 2,
-                    groupValue: selectedOption,
-                    onChanged: (int? value) {
-                      selectedOption = value;
-                    },
+                  ListTile(
+                    title: Text(LocaleKeys.setting_english_language).tr(),
+                    leading: Radio<int> (
+                      value: 2,
+                      groupValue: selectedOption,
+                      onChanged: (int? value) {
+                        setState(() {
+                          selectedOption = value;
+                        });
+                      },
+                      activeColor: Colors.deepOrangeAccent,
+                    ),
                   ),
                 ]
               ),
-            )
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  if(selectedOption == 1) {
+                    context.setLocale(Locale('ru'));
+                    Navigator.pop(context);
+                  }
+                  else {
+                    context.setLocale(Locale('en'));
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text(LocaleKeys.setting_save_button).tr()
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  _cancel(context);
+                },
+                child: Text(LocaleKeys.setting_cancel_button).tr()
+            ),
           ],
         ),
       ),

@@ -15,10 +15,22 @@ class CodegenLoader extends AssetLoader{
   }
 
   static const Map<String,dynamic> en = {
-  "title_in_toolbar": "OCR"
+  "title_in_toolbar": "OCR",
+  "setting_title": "Settings",
+  "setting_choose_language": "Choose language",
+  "setting_russian_language": "Russian",
+  "setting_english_language": "English",
+  "setting_save_button": "Save",
+  "setting_cancel_button": "Cancel"
 };
 static const Map<String,dynamic> ru = {
-  "title_in_toolbar": "OCR"
+  "title_in_toolbar": "OCR",
+  "setting_title": "Настройки",
+  "setting_choose_language": "Выберете язык",
+  "setting_russian_language": "Русский",
+  "setting_english_language": "Английский",
+  "setting_save_button": "Сохранить",
+  "setting_cancel_button": "Отменить"
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"en": en, "ru": ru};
 }
