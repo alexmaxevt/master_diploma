@@ -1,0 +1,27 @@
+class TextDB {
+  final int? id;
+  final String? name;
+  final String? date;
+  final String? text;
+
+  TextDB ({
+    this.id,
+    this.name,
+    this.date,
+    this.text
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'date' : date,
+      'text' : text
+    };
+  }
+
+  @override
+  String toString() {
+    return 'TextDB{id: $id, name: $name, date: $date, text: $text}';
+  }
+}

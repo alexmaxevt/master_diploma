@@ -5,12 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:camera/camera.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
+import 'package:master_diploma/helpers/DatabaseClientModel.dart';
 
 import 'generated/codegen_loader.g.dart';
 import 'generated/locale_keys.g.dart';
+import 'helpers/DatabaseHelper.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,11 +17,11 @@ void main() async{
 
   runApp(
     EasyLocalization(
-        supportedLocales: [Locale('en'), Locale('ru')],
+        supportedLocales: const [Locale('en'), Locale('ru')],
         path: 'assets/translations',
-        fallbackLocale: Locale('ru'),
-        assetLoader: CodegenLoader(),
-        child: MyApp()
+        fallbackLocale: const Locale('ru'),
+        assetLoader: const CodegenLoader(),
+        child: const MyApp()
     ),
   );
 }
@@ -62,6 +61,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late DatabaseHandler handler;
+
   _getImagePhoto() async {
     File file;
     var picker = ImagePicker();
@@ -84,14 +85,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _aboutWindow() {
     return showDialog<void>(
-        context: this.context,
+        context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Alert Dialog'),
+            title: const Text('Alert Dialog'),
             content: const Text(''),
             actions: <Widget> [
               TextButton(
-                child: Text('OK'),
+                child: const Text('OK'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 }
@@ -102,6 +103,26 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  _textList() {
+
+  }
+
+  Future<int> addTestTextDB() async {
+    TextDB text = TextDB(name: 'test', date: '01.01.2001', text: 'test text');
+    List<TextDB> listOfText = [text];
+    return await handler.insertText(listOfText);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    handler = DatabaseHandler();
+    handler.initDB().whenComplete(() async {
+      await addTestTextDB();
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         actions: <Widget> [
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: const Icon(Icons.settings),
             onPressed: () => {
               Navigator.push(
               context,
@@ -118,19 +139,20 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.exit_to_app),
+            icon: const Icon(Icons.exit_to_app),
             onPressed: () => {
             SystemNavigator.pop()
             },
           )
         ],
       ),
-      body: Center(
+      body: const Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+
 
           ],
         ),
@@ -138,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
       drawer: Drawer(
         child: ListView(
           children: <Widget> [
-            DrawerHeader(
+            const DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.brown,
               ),
@@ -151,8 +173,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Настройки'),
+              leading: const Icon(Icons.settings),
+              title: const Text('Настройки'),
               onTap: () {
                 Navigator.push(
                   context,
@@ -161,15 +183,15 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.account_box),
-              title: Text('О приложении'),
+              leading: const Icon(Icons.account_box),
+              title: const Text('О приложении'),
               onTap: () {
                 _aboutWindow();
               },
             ),
             ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Выход'),
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text('Выход'),
               onTap: () {
                 SystemNavigator.pop();
               },
@@ -178,18 +200,18 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: SpeedDial(
-        shape: CircleBorder(),
+        shape: const CircleBorder(),
         icon: Icons.menu,
         children: [
           SpeedDialChild(
-            child: Icon(Icons.camera),
+            child: const Icon(Icons.camera),
             label: 'Камера',
             backgroundColor: Colors.redAccent,
             foregroundColor: Colors.white,
             onTap: () => _getImagePhoto()
           ),
           SpeedDialChild(
-            child: Icon(Icons.folder),
+            child: const Icon(Icons.folder),
             label: 'Открыть изображение',
             backgroundColor: Colors.indigo,
             foregroundColor: Colors.white,
@@ -212,17 +234,17 @@ class _SettingPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(LocaleKeys.setting_title).tr(),
+        title: const Text(LocaleKeys.setting_title).tr(),
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Icon(Icons.arrow_back_outlined),
+          icon: const Icon(Icons.arrow_back_outlined),
         ),
       ),
       body: Container(
-        margin: EdgeInsets.all(30),
-        padding: EdgeInsets.all(40),
+        margin: const EdgeInsets.all(30),
+        padding: const EdgeInsets.all(40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget> [
@@ -231,11 +253,11 @@ class _SettingPageState extends State<SettingsPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   ListTile(
-                    leading: Icon(Icons.add_chart),
-                    title: Text(LocaleKeys.setting_choose_language).tr(),
+                    leading: const Icon(Icons.add_chart),
+                    title: const Text(LocaleKeys.setting_choose_language).tr(),
                   ),
                   ListTile(
-                    title: Text(LocaleKeys.setting_russian_language).tr(),
+                    title: const Text(LocaleKeys.setting_russian_language).tr(),
                     leading: Radio<int> (
                       value: 1,
                       groupValue: selectedOption,
@@ -248,7 +270,7 @@ class _SettingPageState extends State<SettingsPage> {
                     ),
                   ),
                   ListTile(
-                    title: Text(LocaleKeys.setting_english_language).tr(),
+                    title: const Text(LocaleKeys.setting_english_language).tr(),
                     leading: Radio<int> (
                       value: 2,
                       groupValue: selectedOption,
@@ -266,21 +288,21 @@ class _SettingPageState extends State<SettingsPage> {
             ElevatedButton(
                 onPressed: () {
                   if(selectedOption == 1) {
-                    context.setLocale(Locale('ru'));
+                    context.setLocale(const Locale('ru'));
                     Navigator.pop(context);
                   }
                   else {
-                    context.setLocale(Locale('en'));
+                    context.setLocale(const Locale('en'));
                     Navigator.pop(context);
                   }
                 },
-                child: Text(LocaleKeys.setting_save_button).tr()
+                child: const Text(LocaleKeys.setting_save_button).tr()
             ),
             ElevatedButton(
                 onPressed: () {
                   _cancel(context);
                 },
-                child: Text(LocaleKeys.setting_cancel_button).tr()
+                child: const Text(LocaleKeys.setting_cancel_button).tr()
             ),
           ],
         ),
