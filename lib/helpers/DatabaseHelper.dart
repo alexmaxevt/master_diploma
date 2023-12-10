@@ -6,26 +6,24 @@ import 'package:sqflite/sqflite.dart';
 
 import 'DatabaseClientModel.dart';
 
-class DatabaseHandler{
+class DatabaseHandler {
 
   initDB() async {
     String path = join(await getDatabasesPath(), "text.db");
 
-    return await openDatabase(path, version: 1, onOpen: (db) {
-      onCreate: (db, version) async {
+    return await openDatabase(path, version: 1, onCreate: (db, version) async {
         await db.execute('CREATE TABLE texts (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, date TEXT, text TEXT)');
-      };
-    });
+      });
   }
 
-  Future<int> insertText(List<TextDB> texts) async {
-    int result = 0;
+  Future<void> insertText(TextDB text) async {
     final db = await initDB();
-    for (var text in texts)
-    {
-      result = await db.insert('texts', text.toMap());
-    }
-    return result;
+
+    await db.insert(
+      'texts',
+      text.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<List<TextDB>> selectText() async {

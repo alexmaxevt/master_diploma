@@ -1,14 +1,14 @@
 class TextDB {
-  final int? id;
-  final String? name;
-  final String? date;
-  final String? text;
+  final int id;
+  final String name;
+  final String date;
+  final String text;
 
   TextDB ({
-    this.id,
-    this.name,
-    this.date,
-    this.text
+    required this.id,
+    required this.name,
+    required this.date,
+    required this.text
   });
 
   Map<String, dynamic> toMap() {

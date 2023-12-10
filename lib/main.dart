@@ -61,6 +61,12 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int cardCount = 0;
+  List<int> idList = [];
+  List<String> idListString = [];
+  List<String> nameList = [];
+  List<String> dateList = [];
+  List<String> textList = [];
   late DatabaseHandler handler;
 
   _getImagePhoto() async {
@@ -103,14 +109,48 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  _textList() {
-
+  Future<List<int>> getId() async {
+    List<TextDB> content = await handler.selectText();
+    content.forEach((element) {
+      int id = element.id;
+      String idValue = '#${element.id}';
+      idList.add(id);
+      idListString.add(idValue);
+    });
+    return idList;
   }
 
-  Future<int> addTestTextDB() async {
-    TextDB text = TextDB(name: 'test', date: '01.01.2001', text: 'test text');
-    List<TextDB> listOfText = [text];
-    return await handler.insertText(listOfText);
+  Future<List<String>> getName() async {
+    List<TextDB> content = await handler.selectText();
+    content.forEach((element) {
+      String name = element.name;
+      nameList.add(name);
+    });
+    return nameList;
+  }
+
+  Future<List<String>> getDate() async {
+    List<TextDB> content = await handler.selectText();
+    content.forEach((element) {
+      String date = element.date;
+      dateList.add(date);
+    });
+    return dateList;
+  }
+
+  Future<List<String>> getText() async {
+    List<TextDB> content = await handler.selectText();
+    content.forEach((element) {
+      String text = element.text;
+      textList.add(text);
+    });
+    return textList;
+  }
+
+  Future<void> addTestTextDB() async {
+    TextDB text = TextDB(id: 0, name: 'test', date: '01.01.2001', text: 'test text');
+
+    return await handler.insertText(text);
   }
 
   @override
@@ -119,6 +159,10 @@ class _MyHomePageState extends State<MyHomePage> {
     handler = DatabaseHandler();
     handler.initDB().whenComplete(() async {
       await addTestTextDB();
+      await getId();
+      await getName();
+      await getDate();
+      await getText();
       setState(() {});
     });
   }
@@ -146,17 +190,34 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ],
       ),
-      body: const Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-
-
-          ],
-        ),
-      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(8),
+        itemCount: idList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Card(
+            elevation: 4.0,
+            child: Column(
+              children: [
+                ListTile(
+                  title: Text(idListString[index]),
+                  subtitle: Text(nameList[index]),
+                ),
+                Container(
+                  height: 50.0,
+                  child: Stack(
+                    children: [
+                      Text('Дата:'),
+                      Text(dateList[index])
+                    ],
+                  ),
+                ),
+                Container(
+                  child: Text(textList[index]),
+                ),
+              ],
+            ),
+          );
+      }),
       drawer: Drawer(
         child: ListView(
           children: <Widget> [
