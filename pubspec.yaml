@@ -37,7 +37,9 @@ dependencies:
     sdk: flutter
   intl: any
   # Добавление плагина google для машинного обучения
-  google_ml_kit: ^0.16.3
+  google_ml_kit: ^0.14.0
+#  google_mlkit_text_recognition: ^0.11.0
+  flutter_scalable_ocr: ^2.0.0
   # Добавление пользовательских разрешений
   permission_handler: ^11.1.0
   # Добавление модуля image_picker

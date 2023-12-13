@@ -1,9 +1,9 @@
-import 'dart:io';
+import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_scalable_ocr/flutter_scalable_ocr.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:master_diploma/helpers/DatabaseClientModel.dart';
 
@@ -60,6 +60,13 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingPageState();
 }
 
+class ScanPage extends StatefulWidget {
+  const ScanPage({super.key});
+
+  @override
+  State<ScanPage> createState() => _ScanPage();
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   int cardCount = 0;
   List<int> idList = [];
@@ -68,26 +75,6 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> dateList = [];
   List<String> textList = [];
   late DatabaseHandler handler;
-
-  _getImagePhoto() async {
-    File file;
-    var picker = ImagePicker();
-    XFile? photoPicked = await picker.pickVideo(source: ImageSource.camera);
-    if (photoPicked == null) return;
-    setState(() {
-      file = File(photoPicked.path);
-    });
-  }
-
-  _getImageSrc() async {
-    File file;
-    var picker = ImagePicker();
-    XFile? photoPicked = await picker.pickImage(source: ImageSource.gallery);
-    if (photoPicked == null) return;
-    setState(() {
-      file = File(photoPicked.path);
-    });
-  }
 
   _aboutWindow() {
     return showDialog<void>(
@@ -269,15 +256,13 @@ class _MyHomePageState extends State<MyHomePage> {
             label: 'Камера',
             backgroundColor: Colors.redAccent,
             foregroundColor: Colors.white,
-            onTap: () => _getImagePhoto()
+            onTap: () => {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ScanPage())
+              )
+            }
           ),
-          SpeedDialChild(
-            child: const Icon(Icons.folder),
-            label: 'Открыть изображение',
-            backgroundColor: Colors.indigo,
-            foregroundColor: Colors.white,
-            onTap: () => _getImageSrc()
-          )
         ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
@@ -369,5 +354,70 @@ class _SettingPageState extends State<SettingsPage> {
         ),
       ),
     );
+  }
+}
+
+class _ScanPage extends State<ScanPage> {
+  String text = "";
+  final StreamController<String> controller = StreamController<String>();
+
+  void setText(value) {
+    controller.add(value);
+  }
+
+  @override
+  void dispose() {
+    controller.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Распознание текста'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            ScalableOCR(
+                paintboxCustom: Paint()
+                  ..style = PaintingStyle.stroke
+                  ..strokeWidth = 4.0
+                  ..color = const Color.fromARGB(153, 102, 160, 241),
+                boxLeftOff: 5,
+                boxBottomOff: 2.5,
+                boxRightOff: 5,
+                boxTopOff: 2.5,
+                boxHeight: MediaQuery.of(context).size.height / 3,
+                getScannedText: (value) {
+                  setText(value);
+                }
+            ),
+            StreamBuilder<String>(
+              stream: controller.stream,
+              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                return Result(text: snapshot.data != null ? snapshot.data! : "");
+              },
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Result extends StatelessWidget {
+  const Result({
+    Key? key,
+    required this.text,
+  }) : super(key: key);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text("Readed text: $text");
   }
 }
