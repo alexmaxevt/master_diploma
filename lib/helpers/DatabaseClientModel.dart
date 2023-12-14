@@ -1,11 +1,11 @@
 class TextDB {
-  final int id;
+  final int? id;
   final String name;
   final String date;
   final String text;
 
   TextDB ({
-    required this.id,
+    this.id,
     required this.name,
     required this.date,
     required this.text

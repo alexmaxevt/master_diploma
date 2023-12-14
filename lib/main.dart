@@ -99,10 +99,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<List<int>> getId() async {
     List<TextDB> content = await handler.selectText();
     content.forEach((element) {
-      int id = element.id;
+      int? id = element.id;
       String idValue = '#${element.id}';
-      idList.add(id);
-      idListString.add(idValue);
+      if(id != null)
+      {
+        idList.add(id);
+        idListString.add(idValue);
+      }
     });
     return idList;
   }
