@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_scalable_ocr/flutter_scalable_ocr.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:master_diploma/helpers/DatabaseClientModel.dart';
 
 import 'generated/codegen_loader.g.dart';
@@ -420,6 +421,15 @@ class _ScanPage extends State<ScanPage> {
             ElevatedButton(
                 onPressed: () {
                   addTextToDB(name, now.toString(), text);
+                  Fluttertoast.showToast(
+                    msg: 'Данные добавлены в БД',
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.black,
+                    textColor: Colors.white,
+                    fontSize: 14.0,
+                  );
                 },
                 child: Text('Готово')
             )
