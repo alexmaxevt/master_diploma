@@ -181,34 +181,47 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(8),
-        itemCount: idList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Card(
-            elevation: 4.0,
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text(idListString[index]),
-                  subtitle: Text(nameList[index]),
-                ),
-                Container(
-                  height: 50.0,
-                  child: Stack(
-                    children: [
-                      Text('Дата:'),
-                      Text(dateList[index])
-                    ],
+      body:RefreshIndicator(
+        onRefresh: () async {
+          Completer<Null> completer = Completer<Null>();
+          await Future.delayed(const Duration(seconds: 2)).then((value) => completer.complete());
+          setState(() {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const MyHomePage(title: 'OCR')),
+            );
+          });
+        },
+        child: ListView.builder(
+          padding: const EdgeInsets.all(8),
+          itemCount: idList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Card(
+              elevation: 4.0,
+              child: Column(
+                children: [
+                  ListTile(
+                    title: Text(idListString[index]),
+                    subtitle: Text(nameList[index]),
                   ),
-                ),
-                Container(
-                  child: Text(textList[index]),
-                ),
-              ],
-            ),
-          );
-      }),
+                  Container(
+                    height: 50.0,
+                    child: Stack(
+                      children: [
+                        Text('Дата:'),
+                        Text(dateList[index])
+                      ],
+                    ),
+                  ),
+                  Container(
+                    child: Text(textList[index]),
+                  ),
+                ],
+              ),
+            );
+          }
+        ),
+      ),
       drawer: Drawer(
         child: ListView(
           children: <Widget> [
