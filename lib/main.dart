@@ -196,28 +196,45 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: const EdgeInsets.all(8),
           itemCount: idList.length,
           itemBuilder: (BuildContext context, int index) {
-            return Card(
-              elevation: 4.0,
-              child: Column(
-                children: [
-                  ListTile(
-                    title: Text(idListString[index]),
-                    subtitle: Text(nameList[index]),
-                  ),
-                  Container(
-                    height: 50.0,
-                    child: Stack(
-                      children: [
-                        Text('Дата:'),
-                        Text(dateList[index])
-                      ],
-                    ),
-                  ),
-                  Container(
-                    child: Text(textList[index]),
-                  ),
-                ],
+            return Dismissible(
+              background: Container(
+                color: Colors.red,
               ),
+              key: ValueKey<int>(idList[index]),
+              child: Card(
+                elevation: 4.0,
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Text(idListString[index]),
+                      subtitle: Text(nameList[index]),
+                    ),
+                    Container(
+                      height: 50.0,
+                      child: Stack(
+                        children: [
+                          Text('Дата:'),
+                          Text(dateList[index])
+                        ],
+                      ),
+                    ),
+                    Container(
+                      child: Text(textList[index]),
+                    ),
+                  ],
+                ),
+              ),
+              onDismissed: (DismissDirection direction) {
+                setState(() {
+                  handler.initDB().whenComplete(() async {
+                    await handler.deleteText(index);
+                  });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MyHomePage(title: 'OCR')),
+                  );
+                });
+              },
             );
           }
         ),
