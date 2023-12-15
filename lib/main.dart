@@ -362,10 +362,22 @@ class _SettingPageState extends State<SettingsPage> {
 
 class _ScanPage extends State<ScanPage> {
   String text = "";
+  String name = 'text';
+  final now = DateTime.now();
   final StreamController<String> controller = StreamController<String>();
+  late DatabaseHandler handler;
 
   void setText(value) {
     controller.add(value);
+  }
+
+  Future<void> addTextToDB(String name, String date, String textOCR) {
+    handler = DatabaseHandler();
+    TextDB text = TextDB(name: name, date: date, text: textOCR);
+
+    return handler.initDB().whenComplete(() async {
+      await handler.insertText(text);
+    });
   }
 
   @override
@@ -401,15 +413,15 @@ class _ScanPage extends State<ScanPage> {
             StreamBuilder<String>(
               stream: controller.stream,
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                const String name = 'text';
-                final now = DateTime.now();
-                TextDB textDb = TextDB(name: name, date: now.toString(), text: snapshot.data != null ? snapshot.data! : "");
-                DatabaseHandler handler = DatabaseHandler();
-                handler.initDB().whenComplete(() async {
-                  await handler.insertText(textDb);
-                });
+                text = snapshot.data != null ? snapshot.data! : "";
                 return Result(text: snapshot.data != null ? snapshot.data! : "");
               },
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  addTextToDB(name, now.toString(), text);
+                },
+                child: Text('Готово')
             )
           ],
         ),
