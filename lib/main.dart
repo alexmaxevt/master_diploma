@@ -401,6 +401,13 @@ class _ScanPage extends State<ScanPage> {
             StreamBuilder<String>(
               stream: controller.stream,
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                const String name = 'text';
+                final now = DateTime.now();
+                TextDB textDb = TextDB(name: name, date: now.toString(), text: snapshot.data != null ? snapshot.data! : "");
+                DatabaseHandler handler = DatabaseHandler();
+                handler.initDB().whenComplete(() async {
+                  await handler.insertText(textDb);
+                });
                 return Result(text: snapshot.data != null ? snapshot.data! : "");
               },
             )
@@ -413,9 +420,9 @@ class _ScanPage extends State<ScanPage> {
 
 class Result extends StatelessWidget {
   const Result({
-    Key? key,
+    super.key,
     required this.text,
-  }) : super(key: key);
+  });
 
   final String text;
 
