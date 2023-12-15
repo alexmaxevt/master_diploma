@@ -8,5 +8,14 @@ abstract class  LocaleKeys {
   static const setting_english_language = 'setting_english_language';
   static const setting_save_button = 'setting_save_button';
   static const setting_cancel_button = 'setting_cancel_button';
+  static const about_title = 'about_title';
+  static const about_text = 'about_text';
+  static const exit_title = 'exit_title';
+  static const camera_label = 'camera_label';
+  static const text_recognition_title = 'text_recognition_title';
+  static const text_recognition_added_in_db_title = 'text_recognition_added_in_db_title';
+  static const done = 'done';
+  static const date_text = 'date_text';
+  static const menu_title = 'menu_title';
 
 }

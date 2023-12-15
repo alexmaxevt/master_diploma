@@ -5,5 +5,14 @@
   "setting_russian_language": "Russian",
   "setting_english_language": "English",
   "setting_save_button": "Save",
-  "setting_cancel_button": "Cancel"
+  "setting_cancel_button": "Cancel",
+  "about_title": "About",
+  "about_text": "App for text recognition. Create for master diploma. Completed by a student of the group 21-ZKM-PR1 Evtkhov Maksim",
+  "exit_title": "Exit",
+  "camera_label": "Camera",
+  "text_recognition_title": "Text recognition",
+  "text_recognition_added_in_db_title": "Data added in DB",
+  "done": "Done",
+  "date_text": "Date: ",
+  "menu_title": "Menu"
 }

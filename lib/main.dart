@@ -82,8 +82,8 @@ class _MyHomePageState extends State<MyHomePage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Alert Dialog'),
-            content: const Text(''),
+            title: const Text(LocaleKeys.about_title).tr(),
+            content: const Text(LocaleKeys.about_text).tr(),
             actions: <Widget> [
               TextButton(
                 child: const Text('OK'),
@@ -210,10 +210,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       subtitle: Text(nameList[index]),
                     ),
                     Container(
-                      height: 50.0,
-                      child: Stack(
+                      height: 100.0,
+                      child: Column(
                         children: [
-                          Text('Дата:'),
+                          Text(LocaleKeys.date_text).tr(),
                           Text(dateList[index])
                         ],
                       ),
@@ -247,7 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.brown,
               ),
               child: Text(
-                'Drawer',
+                'Menu',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24
@@ -256,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ListTile(
               leading: const Icon(Icons.settings),
-              title: const Text('Настройки'),
+              title: const Text(LocaleKeys.setting_title).tr(),
               onTap: () {
                 Navigator.push(
                   context,
@@ -266,14 +266,14 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ListTile(
               leading: const Icon(Icons.account_box),
-              title: const Text('О приложении'),
+              title: const Text(LocaleKeys.about_title).tr(),
               onTap: () {
                 _aboutWindow();
               },
             ),
             ListTile(
               leading: const Icon(Icons.exit_to_app),
-              title: const Text('Выход'),
+              title: const Text(LocaleKeys.exit_title).tr(),
               onTap: () {
                 SystemNavigator.pop();
               },
@@ -421,7 +421,7 @@ class _ScanPage extends State<ScanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Распознание текста'),
+        title: Text(LocaleKeys.text_recognition_title).tr(),
       ),
       body: Center(
         child: Column(
@@ -461,7 +461,7 @@ class _ScanPage extends State<ScanPage> {
                     fontSize: 14.0,
                   );
                 },
-                child: Text('Готово')
+                child: Text(LocaleKeys.done).tr()
             )
           ],
         ),

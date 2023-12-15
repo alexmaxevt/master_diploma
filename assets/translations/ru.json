@@ -5,5 +5,14 @@
   "setting_russian_language": "Русский",
   "setting_english_language": "Английский",
   "setting_save_button": "Сохранить",
-  "setting_cancel_button": "Отменить"
+  "setting_cancel_button": "Отменить",
+  "about_title": "О программе",
+  "about_text": "Приложение для распознания текста. Создано в рамках магистерской диссертации. Выполнил студент группы 21-ЗКМ-ПР1 Евтухов Максим",
+  "exit_title": "Выход",
+  "camera_label": "Камера",
+  "text_recognition_title": "Распознание текста",
+  "text_recognition_added_in_db_title": "Данные добавлены в БД",
+  "done": "Готово",
+  "date_text": "Дата: ",
+  "menu_title": "Меню"
 }
