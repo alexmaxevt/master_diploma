@@ -43,7 +43,7 @@ dependencies:
   # Добавление пользовательских разрешений
   permission_handler: ^11.1.0
   # Добавление модуля image_picker
-  image_picker: ^1.0.4
+  image_picker: ^1.0.7
   # Добавление плагина tflite
   tflite_flutter: ^0.10.3
   # Добавление плагина meta
@@ -51,12 +51,15 @@ dependencies:
   # Добавление надстройки над Floating Button - SpeedDeal
   flutter_speed_dial: ^7.0.0
   easy_localization: ^3.0.3
-  camera: ^0.10.5+5
-  path_provider: ^2.1.1
+  camera: ^0.10.5+9
+  path_provider: ^2.1.2
   path: ^1.8.3
   sqflite: ^2.3.0
   sqflite_common_ffi: ^2.3.0+4
   fluttertoast: ^8.2.4
+  pdf: ^3.10.7
+  flutter_tesseract_ocr: ^0.4.24
+  image_cropper: ^5.0.1
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -93,6 +96,7 @@ flutter:
     - assets/
     - assets/icons/
     - assets/translations/
+    - assets/tessdata/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

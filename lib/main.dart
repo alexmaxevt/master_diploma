@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_scalable_ocr/flutter_scalable_ocr.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_tesseract_ocr/android_ios.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:master_diploma/helpers/DatabaseClientModel.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 import 'generated/codegen_loader.g.dart';
 import 'generated/locale_keys.g.dart';
@@ -61,11 +65,18 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingPageState();
 }
 
-class ScanPage extends StatefulWidget {
-  const ScanPage({super.key});
+// class ScanPage extends StatefulWidget {
+//   const ScanPage({super.key});
+//
+//   @override
+//   State<ScanPage> createState() => _ScanPage();
+// }
+
+class SelectAndRecognizeImage extends StatefulWidget {
+  const SelectAndRecognizeImage({super.key});
 
   @override
-  State<ScanPage> createState() => _ScanPage();
+  State<StatefulWidget> createState() => _SelectAndRecognizeImage();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -293,7 +304,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onTap: () => {
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ScanPage())
+                  MaterialPageRoute(builder: (context) => const SelectAndRecognizeImage())
               )
             }
           ),
@@ -391,15 +402,143 @@ class _SettingPageState extends State<SettingsPage> {
   }
 }
 
-class _ScanPage extends State<ScanPage> {
-  String text = "";
-  String name = 'text';
-  final now = DateTime.now();
-  final StreamController<String> controller = StreamController<String>();
-  late DatabaseHandler handler;
+// class _ScanPage extends State<ScanPage> {
+//   String text = "";
+//   String name = 'text';
+//   final now = DateTime.now();
+//   final StreamController<String> controller = StreamController<String>();
+//   late DatabaseHandler handler;
+//
+//   void setText(value) {
+//     controller.add(value);
+//   }
+//
+//   Future<void> addTextToDB(String name, String date, String textOCR) {
+//     handler = DatabaseHandler();
+//     TextDB text = TextDB(name: name, date: date, text: textOCR);
+//
+//     return handler.initDB().whenComplete(() async {
+//       await handler.insertText(text);
+//     });
+//   }
+//
+//   @override
+//   void dispose() {
+//     controller.close();
+//     super.dispose();
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text(LocaleKeys.text_recognition_title).tr(),
+//       ),
+//       body: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.start,
+//           children: <Widget>[
+//             ScalableOCR(
+//                 paintboxCustom: Paint()
+//                   ..style = PaintingStyle.stroke
+//                   ..strokeWidth = 4.0
+//                   ..color = const Color.fromARGB(153, 102, 160, 241),
+//                 boxLeftOff: 5,
+//                 boxBottomOff: 2.5,
+//                 boxRightOff: 5,
+//                 boxTopOff: 2.5,
+//                 boxHeight: MediaQuery.of(context).size.height / 3,
+//                 getScannedText: (value) {
+//                   setText(value);
+//                 }
+//             ),
+//             StreamBuilder<String>(
+//               stream: controller.stream,
+//               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+//                 text = snapshot.data != null ? snapshot.data! : "";
+//                 return Result(text: snapshot.data != null ? snapshot.data! : "");
+//               },
+//             ),
+//             ElevatedButton(
+//                 onPressed: () {
+//                   addTextToDB(name, now.toString(), text);
+//                   Fluttertoast.showToast(
+//                     msg: 'Данные добавлены в БД',
+//                     toastLength: Toast.LENGTH_SHORT,
+//                     gravity: ToastGravity.BOTTOM,
+//                     timeInSecForIosWeb: 1,
+//                     backgroundColor: Colors.black,
+//                     textColor: Colors.white,
+//                     fontSize: 14.0,
+//                   );
+//                 },
+//                 child: Text(LocaleKeys.done).tr()
+//             )
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+//
+// class Result extends StatelessWidget {
+//   const Result({
+//     super.key,
+//     required this.text,
+//   });
+//
+//   final String text;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Text("Readed text: $text");
+//   }
+// }
 
-  void setText(value) {
-    controller.add(value);
+class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
+  File? image;
+  int? selectedOption;
+  String text = '';
+  late DatabaseHandler handler;
+  String name = 'text';
+  final date = DateTime.now();
+
+  _getImageSource(ImageSource imageSource) async {
+    XFile? file = await ImagePicker().pickImage(
+        source: imageSource,
+        maxHeight: 1800,
+        maxWidth: 1800
+    );
+    if(file != null) {
+      setState(() {
+        image = File(file.path);
+      });
+    }
+  }
+
+  _scan() async {
+    String? imagePath = (image?.path != null) ? image?.path : '';
+    if(selectedOption == 1) {
+      text = await FlutterTesseractOcr.extractText(imagePath!, language: 'rus');
+    }
+    if(selectedOption == 2) {
+      text = await FlutterTesseractOcr.extractText(imagePath!, language: 'eng');
+    }
+  }
+
+  _savePDF() async {
+    Directory documentDirectory = await getApplicationDocumentsDirectory();
+    String documentPath = documentDirectory.path;
+    final pdf = pw.Document();
+    pdf.addPage(
+        pw.Page(
+            build: (pw.Context context) => pw.Center(
+                child: pw.Text(text)
+            )
+        )
+    );
+    final file = File('$documentPath/text.pdf');
+    file.writeAsBytesSync(await pdf.save());
   }
 
   Future<void> addTextToDB(String name, String date, String textOCR) {
@@ -411,75 +550,123 @@ class _ScanPage extends State<ScanPage> {
     });
   }
 
-  @override
-  void dispose() {
-    controller.close();
-    super.dispose();
+  _cropImage() async {
+    if(image != null) {
+      CroppedFile? cropped = await ImageCropper().cropImage(
+          sourcePath: image!.path,
+          aspectRatioPresets:
+          [
+            CropAspectRatioPreset.square,
+            CropAspectRatioPreset.ratio3x2,
+            CropAspectRatioPreset.original,
+            CropAspectRatioPreset.ratio4x3,
+            CropAspectRatioPreset.ratio16x9
+          ],
+          uiSettings: [
+            AndroidUiSettings(
+                toolbarTitle: 'Crop',
+                cropGridColor: Colors.black,
+                initAspectRatio: CropAspectRatioPreset.original,
+                lockAspectRatio: false),
+            IOSUiSettings(title: 'Crop')
+          ]);
+      if (cropped != null) {
+        setState(() {
+          image = File(cropped.path);
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(LocaleKeys.text_recognition_title).tr(),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            ScalableOCR(
-                paintboxCustom: Paint()
-                  ..style = PaintingStyle.stroke
-                  ..strokeWidth = 4.0
-                  ..color = const Color.fromARGB(153, 102, 160, 241),
-                boxLeftOff: 5,
-                boxBottomOff: 2.5,
-                boxRightOff: 5,
-                boxTopOff: 2.5,
-                boxHeight: MediaQuery.of(context).size.height / 3,
-                getScannedText: (value) {
-                  setText(value);
-                }
-            ),
-            StreamBuilder<String>(
-              stream: controller.stream,
-              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                text = snapshot.data != null ? snapshot.data! : "";
-                return Result(text: snapshot.data != null ? snapshot.data! : "");
-              },
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  addTextToDB(name, now.toString(), text);
-                  Fluttertoast.showToast(
-                    msg: 'Данные добавлены в БД',
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    timeInSecForIosWeb: 1,
-                    backgroundColor: Colors.black,
-                    textColor: Colors.white,
-                    fontSize: 14.0,
-                  );
-                },
-                child: Text(LocaleKeys.done).tr()
-            )
-          ],
+        appBar: AppBar(
+          title: const Text('Выберете источник изображения'),
         ),
-      ),
+        body: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(),
+            child: Column(
+              children: <Widget>[
+                ElevatedButton(
+                    onPressed: () {
+                      _getImageSource(ImageSource.camera);
+                    },
+                    child: Text ('Камера')
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      _getImageSource(ImageSource.gallery);
+                    },
+                    child: Text('Выбрать из галереи')
+                ),
+                if (image != null) Image.file(image!),
+                Card(
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        ListTile(
+                          leading: const Icon(Icons.add_chart),
+                          title: const Text('Выберете язык распознания').tr(),
+                        ),
+                        ListTile(
+                          title: const Text(LocaleKeys.setting_russian_language).tr(),
+                          leading: Radio<int> (
+                            value: 1,
+                            groupValue: selectedOption,
+                            onChanged: (int? value) {
+                              setState(() {
+                                selectedOption = value;
+                              });
+                            },
+                            activeColor: Colors.deepOrangeAccent,
+                          ),
+                        ),
+                        ListTile(
+                          title: const Text(LocaleKeys.setting_english_language).tr(),
+                          leading: Radio<int> (
+                            value: 2,
+                            groupValue: selectedOption,
+                            onChanged: (int? value) {
+                              setState(() {
+                                selectedOption = value;
+                              });
+                            },
+                            activeColor: Colors.deepOrangeAccent,
+                          ),
+                        ),
+                        ElevatedButton(
+                            onPressed: () {
+                              _cropImage();
+                            },
+                            child: Text('Изменить область')
+                        ),
+                        ElevatedButton(
+                            onPressed: () {
+                              _scan();
+                            },
+                            child: Text('Распознать текст')
+                        ),
+                        ElevatedButton(
+                            onPressed: () {
+                              addTextToDB(name, date.toString(), text);
+                            },
+                            child: Text('Сохранить')
+                        ),
+                        ElevatedButton(
+                            onPressed: () {
+                              _savePDF();
+                            },
+                            child: Text('Сохранить PDF')
+                        )
+                      ]
+                  ),
+                )
+              ],
+            ),
+          ),
+        )
     );
-  }
-}
-
-class Result extends StatelessWidget {
-  const Result({
-    super.key,
-    required this.text,
-  });
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text("Readed text: $text");
   }
 }
