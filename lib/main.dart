@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_tesseract_ocr/android_ios.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:master_diploma/helpers/DatabaseClientModel.dart';
@@ -645,18 +646,45 @@ class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
                         ElevatedButton(
                             onPressed: () {
                               _scan();
+                              Fluttertoast.showToast(
+                                msg: 'Текст распознан',
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.black,
+                                textColor: Colors.white,
+                                fontSize: 14.0,
+                              );
                             },
                             child: Text('Распознать текст')
                         ),
                         ElevatedButton(
                             onPressed: () {
                               addTextToDB(name, date.toString(), text);
+                              Fluttertoast.showToast(
+                                msg: 'Текст сохранен в БД',
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.black,
+                                textColor: Colors.white,
+                                fontSize: 14.0,
+                              );
                             },
                             child: Text('Сохранить')
                         ),
                         ElevatedButton(
                             onPressed: () {
                               _savePDF();
+                              Fluttertoast.showToast(
+                                msg: 'Текст сохранен в PDF',
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.black,
+                                textColor: Colors.white,
+                                fontSize: 14.0,
+                              );
                             },
                             child: Text('Сохранить PDF')
                         )
