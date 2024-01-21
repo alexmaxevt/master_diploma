@@ -612,15 +612,13 @@ class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
   }
 
   _createPDF(String ocrText) async {
-    List<int> bytes = utf8.encode(ocrText);
-    String decoded = utf8.decode(bytes);
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
           build: (pw.Context context) {
             return pw.Center(
-              child: pw.Text(decoded),
+              child: pw.Text(ocrText),
             ); // Center
           }
       )
