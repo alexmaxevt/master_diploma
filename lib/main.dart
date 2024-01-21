@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -11,7 +13,9 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:master_diploma/helpers/DatabaseClientModel.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:cr_file_saver/file_saver.dart';
 
 import 'generated/codegen_loader.g.dart';
 import 'generated/locale_keys.g.dart';
@@ -65,13 +69,6 @@ class SettingsPage extends StatefulWidget {
   @override
   State<SettingsPage> createState() => _SettingPageState();
 }
-
-// class ScanPage extends StatefulWidget {
-//   const ScanPage({super.key});
-//
-//   @override
-//   State<ScanPage> createState() => _ScanPage();
-// }
 
 class SelectAndRecognizeImage extends StatefulWidget {
   const SelectAndRecognizeImage({super.key});
@@ -193,6 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ],
       ),
+      backgroundColor: Colors.lightGreen,
       body:RefreshIndicator(
         onRefresh: () async {
           Completer<Null> completer = Completer<Null>();
@@ -299,7 +297,7 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           SpeedDialChild(
             child: const Icon(Icons.camera),
-            label: 'Камера',
+            label: 'Распознать изображение',
             backgroundColor: Colors.redAccent,
             foregroundColor: Colors.white,
             onTap: () => {
@@ -334,6 +332,7 @@ class _SettingPageState extends State<SettingsPage> {
           icon: const Icon(Icons.arrow_back_outlined),
         ),
       ),
+      backgroundColor: Colors.lightGreen,
       body: Container(
         margin: const EdgeInsets.all(30),
         padding: const EdgeInsets.all(40),
@@ -403,99 +402,6 @@ class _SettingPageState extends State<SettingsPage> {
   }
 }
 
-// class _ScanPage extends State<ScanPage> {
-//   String text = "";
-//   String name = 'text';
-//   final now = DateTime.now();
-//   final StreamController<String> controller = StreamController<String>();
-//   late DatabaseHandler handler;
-//
-//   void setText(value) {
-//     controller.add(value);
-//   }
-//
-//   Future<void> addTextToDB(String name, String date, String textOCR) {
-//     handler = DatabaseHandler();
-//     TextDB text = TextDB(name: name, date: date, text: textOCR);
-//
-//     return handler.initDB().whenComplete(() async {
-//       await handler.insertText(text);
-//     });
-//   }
-//
-//   @override
-//   void dispose() {
-//     controller.close();
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(LocaleKeys.text_recognition_title).tr(),
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.start,
-//           children: <Widget>[
-//             ScalableOCR(
-//                 paintboxCustom: Paint()
-//                   ..style = PaintingStyle.stroke
-//                   ..strokeWidth = 4.0
-//                   ..color = const Color.fromARGB(153, 102, 160, 241),
-//                 boxLeftOff: 5,
-//                 boxBottomOff: 2.5,
-//                 boxRightOff: 5,
-//                 boxTopOff: 2.5,
-//                 boxHeight: MediaQuery.of(context).size.height / 3,
-//                 getScannedText: (value) {
-//                   setText(value);
-//                 }
-//             ),
-//             StreamBuilder<String>(
-//               stream: controller.stream,
-//               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-//                 text = snapshot.data != null ? snapshot.data! : "";
-//                 return Result(text: snapshot.data != null ? snapshot.data! : "");
-//               },
-//             ),
-//             ElevatedButton(
-//                 onPressed: () {
-//                   addTextToDB(name, now.toString(), text);
-//                   Fluttertoast.showToast(
-//                     msg: 'Данные добавлены в БД',
-//                     toastLength: Toast.LENGTH_SHORT,
-//                     gravity: ToastGravity.BOTTOM,
-//                     timeInSecForIosWeb: 1,
-//                     backgroundColor: Colors.black,
-//                     textColor: Colors.white,
-//                     fontSize: 14.0,
-//                   );
-//                 },
-//                 child: Text(LocaleKeys.done).tr()
-//             )
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-// class Result extends StatelessWidget {
-//   const Result({
-//     super.key,
-//     required this.text,
-//   });
-//
-//   final String text;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Text("Readed text: $text");
-//   }
-// }
-
 class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
   File? image;
   int? selectedOption;
@@ -503,6 +409,13 @@ class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
   late DatabaseHandler handler;
   String name = 'text';
   final date = DateTime.now();
+  final pdf = pw.Document(deflate: zlib.encode);
+  String path = '';
+  bool isDisabledSaveButton = true;
+  bool isDisabledSavePDFButton = true;
+  bool isLanguageSelected = false;
+  static const _tempFileName = 'TempOCRFile.pdf';
+  static const _testWithDialogFileName = 'OCRFile.pdf';
 
   _getImageSource(ImageSource imageSource) async {
     XFile? file = await ImagePicker().pickImage(
@@ -527,19 +440,27 @@ class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
     }
   }
 
-  _savePDF() async {
-    Directory documentDirectory = await getApplicationDocumentsDirectory();
-    String documentPath = documentDirectory.path;
-    final pdf = pw.Document();
-    pdf.addPage(
-        pw.Page(
-            build: (pw.Context context) => pw.Center(
-                child: pw.Text(text)
-            )
-        )
-    );
-    final file = File('$documentPath/text.pdf');
-    file.writeAsBytesSync(await pdf.save());
+  Future _savePDF() async {
+    _onCheckPermission();
+    final folder = await getTemporaryDirectory();
+    final filePath = '${folder.path}/$_tempFileName';
+    String? file;
+    try {
+      file = await CRFileSaver.saveFileWithDialog(SaveFileDialogParams(
+        sourceFilePath: filePath,
+        destinationFileName: _testWithDialogFileName,
+      ));
+      if(_checkIsTempFileExists()) {
+        log('Saved to $file');
+      }
+      else
+      {
+        log('Not saved to $file');
+      }
+    }
+    catch (err) {
+      log('Error: $err');
+    }
   }
 
   Future<void> addTextToDB(String name, String date, String textOCR) {
@@ -579,12 +500,144 @@ class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
     }
   }
 
+  _disabledSaveButton() {
+    if(text != '') {
+      isDisabledSaveButton = false;
+    }
+    else {
+      isDisabledSaveButton = true;
+    }
+  }
+
+  _disableSavePDFButton() {
+    if(text != '') {
+      isDisabledSavePDFButton = false;
+    }
+    else {
+      isDisabledSavePDFButton = true;
+    }
+  }
+
+  _disableScanButton() {
+    if(selectedOption == null) {
+      isLanguageSelected = false;
+    }
+    else {
+      isLanguageSelected = true;
+    }
+  }
+
+  _toastError() {
+    return Fluttertoast.showToast(
+      msg: 'Текст не распознан',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.black,
+      textColor: Colors.white,
+      fontSize: 14.0,
+    );
+  }
+
+  _pressSaveButton(String name, String date, String textOCR) {
+    _disabledSaveButton();
+    if(!isDisabledSaveButton) {
+      addTextToDB(name, date, textOCR);
+      Fluttertoast.showToast(
+        msg: 'Текст сохранен в БД',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
+    }
+    else {
+      _toastError();
+    }
+  }
+
+  _pressSavePDFButton() {
+    _disableSavePDFButton();
+    if(!isDisabledSavePDFButton) {
+      _createPDF(text);
+      Fluttertoast.showToast(
+        msg: 'Текст сохранен в PDF',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
+    }
+    else {
+      _toastError();
+    }
+  }
+
+  _pressScanButton() {
+    _disableScanButton();
+    if (isLanguageSelected) {
+      _scan();
+      Fluttertoast.showToast(
+        msg: 'Текст распознан',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
+    }
+    else
+    {
+      _toastError();
+    }
+  }
+
+  _onCheckPermission() async {
+    final granted = await CRFileSaver.requestWriteExternalStoragePermission();
+
+    log('requestWriteExternalStoragePermission: $granted');
+  }
+
+  _checkIsTempFileExists() async {
+    final folder = await getTemporaryDirectory();
+    final filePath = '${folder.path}/$_tempFileName';
+    final file = File(filePath);
+
+    return file.exists();
+  }
+
+  _createPDF(String ocrText) async {
+    List<int> bytes = utf8.encode(ocrText);
+    String decoded = utf8.decode(bytes);
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(32),
+          build: (pw.Context context) {
+            return pw.Center(
+              child: pw.Text(decoded),
+            ); // Center
+          }
+      )
+    );
+    final folder = await getTemporaryDirectory();
+    final filePath = '${folder.path}/$_tempFileName';
+    await File(filePath).writeAsBytes(await pdf.save());
+    _savePDF();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Выберете источник изображения'),
         ),
+        backgroundColor: Colors.lightGreen,
         body: SingleChildScrollView(
           child: ConstrainedBox(
             constraints: BoxConstraints(),
@@ -645,46 +698,19 @@ class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
                         ),
                         ElevatedButton(
                             onPressed: () {
-                              _scan();
-                              Fluttertoast.showToast(
-                                msg: 'Текст распознан',
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: Colors.black,
-                                textColor: Colors.white,
-                                fontSize: 14.0,
-                              );
+                              _pressScanButton();
                             },
                             child: Text('Распознать текст')
                         ),
                         ElevatedButton(
                             onPressed: () {
-                              addTextToDB(name, date.toString(), text);
-                              Fluttertoast.showToast(
-                                msg: 'Текст сохранен в БД',
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: Colors.black,
-                                textColor: Colors.white,
-                                fontSize: 14.0,
-                              );
+                              _pressSaveButton(name, date.toString(), text);
                             },
                             child: Text('Сохранить')
                         ),
                         ElevatedButton(
                             onPressed: () {
-                              _savePDF();
-                              Fluttertoast.showToast(
-                                msg: 'Текст сохранен в PDF',
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: Colors.black,
-                                textColor: Colors.white,
-                                fontSize: 14.0,
-                              );
+                              _pressSavePDFButton();
                             },
                             child: Text('Сохранить PDF')
                         )

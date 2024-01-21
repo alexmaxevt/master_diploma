@@ -3,7 +3,9 @@
     package="ru.evtukhov.master_diploma">
     <uses-sdk tools:overrideLibrary="com.google.firebase.firebase_core" android:minSdkVersion="26" android:targetSdkVersion="33"/>
     <uses-permission android:name="android.permission.CAMERA" android:maxSdkVersion="33" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
    <application
+        android:requestLegacyExternalStorage="true"
         android:label="master_diploma"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">

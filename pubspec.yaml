@@ -60,6 +60,8 @@ dependencies:
   pdf: ^3.10.7
   flutter_tesseract_ocr: ^0.4.24
   image_cropper: ^5.0.1
+  syncfusion_flutter_pdf: ^24.1.45
+  cr_file_saver: ^0.0.2+1
 
 
   # The following adds the Cupertino Icons font to your application.
