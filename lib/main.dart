@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -13,7 +12,6 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:master_diploma/helpers/DatabaseClientModel.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:cr_file_saver/file_saver.dart';
 
@@ -414,8 +412,8 @@ class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
   bool isDisabledSaveButton = true;
   bool isDisabledSavePDFButton = true;
   bool isLanguageSelected = false;
-  static const _tempFileName = 'TempOCRFile.pdf';
-  static const _testWithDialogFileName = 'OCRFile.pdf';
+  static const _tempFileName = 'TempOCRFile.txt';
+  static const _testWithDialogFileName = 'OCRFile.txt';
 
   _getImageSource(ImageSource imageSource) async {
     XFile? file = await ImagePicker().pickImage(
@@ -440,7 +438,7 @@ class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
     }
   }
 
-  Future _savePDF() async {
+  Future _saveTXT() async {
     _onCheckPermission();
     final folder = await getTemporaryDirectory();
     final filePath = '${folder.path}/$_tempFileName';
@@ -558,7 +556,7 @@ class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
     }
   }
 
-  _pressSavePDFButton() {
+  _pressSaveTXTButton() {
     _disableSavePDFButton();
     if(!isDisabledSavePDFButton) {
       _createPDF(text);
@@ -612,21 +610,10 @@ class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
   }
 
   _createPDF(String ocrText) async {
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(32),
-          build: (pw.Context context) {
-            return pw.Center(
-              child: pw.Text(ocrText),
-            ); // Center
-          }
-      )
-    );
     final folder = await getTemporaryDirectory();
     final filePath = '${folder.path}/$_tempFileName';
-    await File(filePath).writeAsBytes(await pdf.save());
-    _savePDF();
+    await File(filePath).writeAsString(ocrText);
+    _saveTXT();
   }
 
   @override
@@ -708,9 +695,9 @@ class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
                         ),
                         ElevatedButton(
                             onPressed: () {
-                              _pressSavePDFButton();
+                              _pressSaveTXTButton();
                             },
-                            child: Text('Сохранить PDF')
+                            child: Text('Сохранить TXT')
                         )
                       ]
                   ),
