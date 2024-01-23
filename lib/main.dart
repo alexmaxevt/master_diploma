@@ -561,7 +561,7 @@ class _SelectAndRecognizeImage extends State<SelectAndRecognizeImage> {
     if(!isDisabledSavePDFButton) {
       _createPDF(text);
       Fluttertoast.showToast(
-        msg: 'Текст сохранен в PDF',
+        msg: 'Текст сохранен в TXT',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
